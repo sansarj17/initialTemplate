@@ -1,21 +1,32 @@
-import { useSelector } from "react-redux";
-import Auth from "./components/Auth";
-import Counter from "./components/Counter";
-import Header from "./components/Header";
-import UserProfile from "./components/UserProfile";
-
-
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Cart from "./components/Cart/Cart";
+import Layout from "./components/Layout/Layout";
+import Products from "./components/Shop/Products";
+import Notification from "./components/UI/Notification";
+import { sendCartData } from "./store/cartSlice";
 
 function App() {
+	const dispatch = useDispatch()
+    const showCart = useSelector((state) => state.ui.showCart);
+	const notification = useSelector((state) => state.ui.notification)
+	const cart = useSelector((state) => state.cart)
 
-	const isAuthenticated = useSelector(state => state.auth.isAuthenticated)
+	const [initial,setInitial] = useState(true);
+
+	useEffect(() => {
+		if(initial) {
+			setInitial(false)
+		} else dispatch(sendCartData(cart));
+	},[cart, dispatch, initial])
 
     return (
         <>
-            <Header />
-			{!isAuthenticated && <Auth/>}
-			{isAuthenticated && <UserProfile/>}
-            <Counter />
+			{notification && <Notification status={notification.status} message={notification.message}/>}
+            <Layout>
+                {showCart && <Cart />}
+                <Products />
+            </Layout>
         </>
     );
 }
